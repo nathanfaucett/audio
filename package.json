@@ -11,9 +11,6 @@
     "audio",
     "audio.js"
   ],
-  "scripts": {
-    "example": "comn -f example/src/index.js -o example/index.js"
-  },
   "author": "Nathan Faucett",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -23,8 +20,8 @@
     "grunt-jsbeautifier": "^0.2.7"
   },
   "dependencies": {
+    "xmlhttprequest_polyfill": "git://github.com/nathanfaucett/xmlhttprequest_polyfill.git",
     "environment": "git://github.com/nathanfaucett/environment.git",
-    "vec3": "git://github.com/nathanfaucett/vec3.git",
     "event_emitter": "git://github.com/nathanfaucett/event_emitter.git",
     "event_listener": "git://github.com/nathanfaucett/event_listener.git",
     "mathf": "git://github.com/nathanfaucett/mathf.git",
