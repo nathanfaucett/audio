@@ -4,4 +4,4 @@ var audio = exports;
 audio.context = require("./context");
 audio.load = require("./load");
 audio.Clip = require("./Clip");
-audio.Source = require("./Source");
+audio.Source = require("./WebAudioSource");

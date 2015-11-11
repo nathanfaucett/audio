@@ -1,6 +1,8 @@
-var EventEmitter = require("event_emitter"),
+var isBoolean = require("is_boolean"),
+    isNumber = require("is_number"),
+    EventEmitter = require("event_emitter"),
     mathf = require("mathf"),
-    time = require("time"),
+    now = require("now"),
     context = require("./context");
 
 
@@ -17,10 +19,10 @@ function WebAudioSource() {
 
     this.clip = null;
 
-    this.currentTime = 0;
     this.loop = false;
-    this.volume = 1;
-    this.dopplerLevel = 0;
+    this.volume = 1.0;
+    this.dopplerLevel = 0.0;
+    this.currentTime = 0.0;
 
     this.playing = false;
     this.paused = false;
@@ -29,7 +31,7 @@ function WebAudioSource() {
     this.__gain = null;
     this.__panner = null;
 
-    this.__startTime = 0;
+    this.__startTime = 0.0;
 
     this.__onEnd = function onEnd() {
         _this.__source = null;
@@ -37,23 +39,41 @@ function WebAudioSource() {
         _this.__panner = null;
         _this.playing = false;
         _this.paused = false;
-        _this.currentTime = 0;
-        _this.__startTime = 0;
+        _this.currentTime = 0.0;
+        _this.__startTime = 0.0;
         _this.emit("end");
     };
 }
 EventEmitter.extend(WebAudioSource);
 WebAudioSourcePrototype = WebAudioSource.prototype;
 
-WebAudioSourcePrototype.destructor = function() {
+WebAudioSource.create = function(options) {
+    return (new WebAudioSource()).construct(options);
+};
 
-    this.clip = null;
+WebAudioSourcePrototype.construct = function(options) {
 
-    this.ambient = false;
-    this.currentTime = 0;
-    this.loop = false;
-    this.volume = 1;
-    this.dopplerLevel = 0;
+    if (options) {
+        if (options.clip) {
+            this.clip = options.clip;
+        }
+
+        if (isBoolean(options.ambient)) {
+            this.ambient = options.ambient;
+        }
+        if (isBoolean(options.loop)) {
+            this.loop = options.loop;
+        }
+
+        if (isNumber(options.volume)) {
+            this.volume = options.volume;
+        }
+        if (isNumber(options.dopplerLevel)) {
+            this.dopplerLevel = options.dopplerLevel;
+        }
+    }
+
+    this.currentTime = 0.0;
 
     this.playing = false;
     this.paused = false;
@@ -62,7 +82,29 @@ WebAudioSourcePrototype.destructor = function() {
     this.__gain = null;
     this.__panner = null;
 
-    this.__startTime = 0;
+    this.__startTime = 0.0;
+
+    return this;
+};
+
+WebAudioSourcePrototype.destructor = function() {
+
+    this.clip = null;
+
+    this.ambient = false;
+    this.loop = false;
+    this.volume = 1.0;
+    this.dopplerLevel = 0.0;
+    this.currentTime = 0.0;
+
+    this.playing = false;
+    this.paused = false;
+
+    this.__source = null;
+    this.__gain = null;
+    this.__panner = null;
+
+    this.__startTime = 0.0;
 
     return this;
 };
@@ -83,12 +125,12 @@ WebAudioSourcePrototype.setDopplerLevel = function(value) {
 };
 
 WebAudioSourcePrototype.setVolume = function(value) {
-    var gain = this.__gain;
+    var gainNode = this.__gain;
 
     this.volume = mathf.clamp01(value || 0);
 
-    if (gain) {
-        gain.gain.value = this.volume;
+    if (gainNode) {
+        gainNode.gain.value = this.volume;
     }
 
     return this;
@@ -109,27 +151,56 @@ WebAudioSourcePrototype.setPosition = function(position) {
     return this;
 };
 
-WebAudioSource_reset = function(_this) {
+WebAudioSourcePrototype.setVelocity = function(velocity) {
+    var panner = this.__panner;
+
+    if (panner) {
+        panner.setVelocity(velocity[0], velocity[1], velocity[2]);
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setOrientation = function(orientation) {
+    var panner = this.__panner;
+
+    if (panner) {
+        panner.setOrientation(orientation[0], orientation[1], orientation[2]);
+    }
+
+    return this;
+};
+
+function WebAudioSource_reset(_this) {
     var source = _this.__source = context.createBufferSource(),
-        gain = _this.__gain = context.createGain(),
-        panner;
+        gainNode = _this.__gain = context.createGain(),
+        pannerNode;
 
     if (_this.ambient === true) {
-        gain.connect(context.destination);
-        source.connect(gain);
+        gainNode.connect(context.destination);
+        source.connect(gainNode);
     } else {
-        panner = _this.__panner = context.createPanner();
-        gain.connect(context.destination);
-        panner.connect(gain);
-        source.connect(panner);
+        pannerNode = _this.__panner = context.createPanner();
+
+        pannerNode.panningModel = "HRTF";
+        pannerNode.distanceModel = "inverse";
+
+        pannerNode.rolloffFactor = 1;
+        pannerNode.coneInnerAngle = 360;
+        pannerNode.coneOuterAngle = 0;
+        pannerNode.coneOuterGain = 0;
+
+        pannerNode.connect(gainNode);
+        gainNode.connect(context.destination);
+        source.connect(pannerNode);
     }
 
     source.buffer = _this.clip.raw;
     source.onended = _this.__onEnd;
 
-    gain.gain.value = _this.volume;
+    gainNode.gain.value = _this.volume;
     source.loop = _this.loop;
-};
+}
 
 WebAudioSourcePrototype.play = function(delay, offset, duration) {
     var _this = this,
@@ -140,21 +211,24 @@ WebAudioSourcePrototype.play = function(delay, offset, duration) {
         currentTime = this.currentTime;
         clipDuration = clip.raw.duration;
 
-        delay = delay || 0;
+        delay = delay || 0.0;
         offset = offset || currentTime;
-        duration = duration || clipDuration;
-        duration = duration > clipDuration ? clipDuration : duration;
+        duration = mathf.clamp(duration || clipDuration || 0.0, 0.0, clipDuration);
 
         WebAudioSource_reset(this);
 
         this.playing = true;
         this.paused = false;
-        this.__startTime = time.now();
+        this.__startTime = now() * 0.001;
         this.currentTime = offset;
 
-        this.__source.start(delay, offset, duration);
+        if (this.loop) {
+            this.__source.start(delay, offset);
+        } else {
+            this.__source.start(delay, offset, duration);
+        }
 
-        if (delay === 0) {
+        if (delay === 0.0) {
             this.emit("play");
         } else {
             setTimeout(function() {
@@ -171,8 +245,8 @@ WebAudioSourcePrototype.pause = function() {
 
     if (clip && clip.raw && this.playing && !this.paused) {
         this.paused = true;
-        this.currentTime = time.now() - this.__startTime;
-        this.__source.stop(this.currentTime);
+        this.currentTime = (now() - this.__startTime) * 0.001;
+        this.__source.stop();
         this.emit("pause");
     }
 
@@ -183,7 +257,7 @@ WebAudioSourcePrototype.stop = function() {
     var clip = this.clip;
 
     if (this.playing && clip && clip.raw) {
-        this.__source.stop(0);
+        this.__source.stop();
         this.emit("stop");
         this.__onEnd();
     }

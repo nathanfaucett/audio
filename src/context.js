@@ -1,4 +1,5 @@
-var environment = require("environment"),
+var isNullOrUndefined = require("is_null_or_undefined"),
+    environment = require("environment"),
     eventListener = require("event_listener");
 
 
@@ -38,10 +39,9 @@ if (AudioContext) {
     GainPrototype.setTargetAtTime = GainPrototype.setTargetAtTime || GainPrototype.setTargetValueAtTime;
 
     onTouchStart = function onTouchStart() {
-        var buffer = context.createBuffer(1, 1, 22050),
-            source = context.createBufferSource();
+        var source = context.createBufferSource();
 
-        source.buffer = buffer;
+        source.buffer = context.createBuffer(1, 1, 22050);
         source.connect(context.destination);
         source.start(0);
 
@@ -55,4 +55,4 @@ if (AudioContext) {
 }
 
 
-module.exports = context != null ? context : false;
+module.exports = isNullOrUndefined(context) ? false : context;

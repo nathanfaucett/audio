@@ -1,5 +1,8 @@
+Gruntfile.js
+example
 node_modules
 npm-debug.log
 .npmignore
 .gitignore
-example
+.editorconfig
+.travis.yml
