@@ -19,6 +19,7 @@ var window = environment.window,
 if (AudioContext) {
     context = new AudioContext();
 
+
     AudioContextPrototype = AudioContext.prototype;
     AudioContextPrototype.UNLOCKED = !environment.mobile;
     AudioContextPrototype.createGain = AudioContextPrototype.createGain || AudioContextPrototype.createGainNode;

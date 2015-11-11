@@ -1,10 +1,12 @@
 var HttpError = require("http_error"),
+    environment = require("environment"),
     eventListener = require("event_listener"),
     XMLHttpRequestPolyfill = require("xmlhttprequest_polyfill"),
     context = require("./context");
 
 
-var load;
+var document = environment.document,
+    load;
 
 
 if (context) {
@@ -38,7 +40,7 @@ if (context) {
     load = function load(src, callback) {
         var audio = document.createElement("audio");
 
-        eventListener.on(audio, "load", function onLoad() {
+        eventListener.on(audio, "canplaythrough", function onLoad() {
             callback(undefined, audio);
         });
 
@@ -48,7 +50,10 @@ if (context) {
 
         audio.src = src;
 
-        return function abort() {};
+        return function abort() {
+            audio.pause();
+            audio.src = "";
+        };
     };
 }
 

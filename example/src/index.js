@@ -22,15 +22,22 @@ eventListener.on(environment.window, "load", check);
 
 function start() {
     var boomSource = audio.Source.create({
+            volume: 1,
             clip: boomClip
         }),
         engineSource = audio.Source.create({
+            volume: 0.25,
             loop: true,
             clip: engineClip
         });
 
     engineSource.play();
+
     setTimeout(function() {
-        engineSource.pause();
+        boomSource.play();
     }, 1000);
+
+    setTimeout(function() {
+        engineSource.stop();
+    }, 2000);
 }
