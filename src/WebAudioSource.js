@@ -1,5 +1,6 @@
 var isBoolean = require("is_boolean"),
     isNumber = require("is_number"),
+    isString = require("is_string"),
     EventEmitter = require("event_emitter"),
     mathf = require("mathf"),
     now = require("now"),
@@ -23,6 +24,17 @@ function WebAudioSource() {
     this.volume = 1.0;
     this.dopplerLevel = 0.0;
     this.currentTime = 0.0;
+
+    this.panningModel = "HRTF";
+    this.distanceModel = "inverse";
+
+    this.refDistance = 1.0;
+    this.maxDistance = 10000.0;
+    this.rolloffFactor = 1.0;
+
+    this.coneInnerAngle = 360.0;
+    this.coneOuterAngle = 0.0;
+    this.coneOuterGain = 0.0;
 
     this.playing = false;
     this.paused = false;
@@ -71,6 +83,33 @@ WebAudioSourcePrototype.construct = function(options) {
         if (isNumber(options.dopplerLevel)) {
             this.dopplerLevel = options.dopplerLevel;
         }
+
+        if (isString(options.panningModel)) {
+            this.panningModel = options.panningModel;
+        }
+        if (isString(options.distanceModel)) {
+            this.distanceModel = options.distanceModel;
+        }
+
+        if (isNumber(options.refDistance)) {
+            this.refDistance = options.refDistance;
+        }
+        if (isNumber(options.maxDistance)) {
+            this.maxDistance = options.maxDistance;
+        }
+        if (isNumber(options.rolloffFactor)) {
+            this.rolloffFactor = options.rolloffFactor;
+        }
+
+        if (isNumber(options.coneInnerAngle)) {
+            this.coneInnerAngle = options.coneInnerAngle;
+        }
+        if (isNumber(options.coneOuterAngle)) {
+            this.coneOuterAngle = options.coneOuterAngle;
+        }
+        if (isNumber(options.coneOuterGain)) {
+            this.coneOuterGain = options.coneOuterGain;
+        }
     }
 
     this.currentTime = 0.0;
@@ -97,6 +136,17 @@ WebAudioSourcePrototype.destructor = function() {
     this.dopplerLevel = 0.0;
     this.currentTime = 0.0;
 
+    this.panningModel = "HRTF";
+    this.distanceModel = "inverse";
+
+    this.refDistance = 1.0;
+    this.maxDistance = 10000.0;
+    this.rolloffFactor = 1.0;
+
+    this.coneInnerAngle = 360.0;
+    this.coneOuterAngle = 0.0;
+    this.coneOuterGain = 0.0;
+
     this.playing = false;
     this.paused = false;
 
@@ -111,6 +161,102 @@ WebAudioSourcePrototype.destructor = function() {
 
 WebAudioSourcePrototype.setClip = function(value) {
     this.clip = value;
+    return this;
+};
+
+WebAudioSourcePrototype.setPanningModel = function(value) {
+    var panner = this.__panner;
+
+    this.panningModel = value;
+
+    if (panner) {
+        panner.panningModel = this.panningModel;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setDistanceModel = function(value) {
+    var panner = this.__panner;
+
+    this.distanceModel = value;
+
+    if (panner) {
+        panner.distanceModel = this.distanceModel;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setRefDistance = function(value) {
+    var panner = this.__panner;
+
+    this.refDistance = value;
+
+    if (panner) {
+        panner.refDistance = this.refDistance;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setMaxDistance = function(value) {
+    var panner = this.__panner;
+
+    this.maxDistance = value;
+
+    if (panner) {
+        panner.maxDistance = this.maxDistance;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setRolloffFactor = function(value) {
+    var panner = this.__panner;
+
+    this.rolloffFactor = value;
+
+    if (panner) {
+        panner.rolloffFactor = this.rolloffFactor;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setConeInnerAngle = function(value) {
+    var panner = this.__panner;
+
+    this.coneInnerAngle = value || 0;
+
+    if (panner) {
+        panner.coneInnerAngle = this.coneInnerAngle;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setConeOuterAngle = function(value) {
+    var panner = this.__panner;
+
+    this.coneOuterAngle = value || 0;
+
+    if (panner) {
+        panner.coneOuterAngle = this.coneOuterAngle;
+    }
+
+    return this;
+};
+
+WebAudioSourcePrototype.setConeOuterGain = function(value) {
+    var panner = this.__panner;
+
+    this.coneOuterGain = value || 0;
+
+    if (panner) {
+        panner.coneOuterGain = this.coneOuterGain;
+    }
+
     return this;
 };
 
@@ -182,13 +328,18 @@ function WebAudioSource_reset(_this) {
     } else {
         pannerNode = _this.__panner = context.createPanner();
 
-        pannerNode.panningModel = "HRTF";
-        pannerNode.distanceModel = "inverse";
+        pannerNode.panningModel = _this.panningModel;
+        pannerNode.distanceModel = _this.distanceModel;
 
-        pannerNode.rolloffFactor = 1;
-        pannerNode.coneInnerAngle = 360;
-        pannerNode.coneOuterAngle = 0;
-        pannerNode.coneOuterGain = 0;
+        pannerNode.refDistance = _this.refDistance;
+        pannerNode.maxDistance = _this.maxDistance;
+        pannerNode.rolloffFactor = _this.rolloffFactor;
+
+        pannerNode.coneInnerAngle = _this.coneInnerAngle;
+        pannerNode.coneOuterAngle = _this.coneOuterAngle;
+        pannerNode.coneOuterGain = _this.coneOuterGain;
+
+        pannerNode.setOrientation(0, 0, 1);
 
         pannerNode.connect(gainNode);
         gainNode.connect(context.destination);
@@ -263,4 +414,48 @@ WebAudioSourcePrototype.stop = function() {
     }
 
     return this;
+};
+
+WebAudioSourcePrototype.toJSON = function(json) {
+
+    json = json || {};
+
+    json.loop = this.loop;
+    json.volume = this.volume;
+    json.dopplerLevel = this.dopplerLevel;
+    json.currentTime = this.currentTime;
+
+    json.panningModel = this.panningModel;
+    json.distanceModel = this.distanceModel;
+
+    json.refDistance = this.refDistance;
+    json.maxDistance = this.maxDistance;
+    json.rolloffFactor = this.rolloffFactor;
+
+    json.coneInnerAngle = this.coneInnerAngle;
+    json.coneOuterAngle = this.coneOuterAngle;
+    json.coneOuterGain = this.coneOuterGain;
+
+    return json;
+};
+
+WebAudioSourcePrototype.fromJSON = function(json) {
+
+    this.loop = json.loop;
+    this.volume = json.volume;
+    this.dopplerLevel = json.dopplerLevel;
+    this.currentTime = json.currentTime;
+
+    this.panningModel = json.panningModel;
+    this.distanceModel = json.distanceModel;
+
+    this.refDistance = json.refDistance;
+    this.maxDistance = json.maxDistance;
+    this.rolloffFactor = json.rolloffFactor;
+
+    this.coneInnerAngle = json.coneInnerAngle;
+    this.coneOuterAngle = json.coneOuterAngle;
+    this.coneOuterGain = json.coneOuterGain;
+
+    return json;
 };

@@ -23,6 +23,17 @@ function AudioSource() {
     this.dopplerLevel = 0.0;
     this.currentTime = 0.0;
 
+    this.panningModel = "HRTF";
+    this.distanceModel = "inverse";
+
+    this.refDistance = 1.0;
+    this.maxDistance = 10000.0;
+    this.rolloffFactor = 1.0;
+
+    this.coneInnerAngle = 360.0;
+    this.coneOuterAngle = 0.0;
+    this.coneOuterGain = 0.0;
+
     this.playing = false;
     this.paused = false;
 
@@ -124,6 +135,46 @@ AudioSourcePrototype.setVolume = function(value) {
     return this;
 };
 
+AudioSourcePrototype.setPanningModel = function(value) {
+    this.panningModel = value;
+    return this;
+};
+
+AudioSourcePrototype.setDistanceModel = function(value) {
+    this.distanceModel = value;
+    return this;
+};
+
+AudioSourcePrototype.setRefDistance = function(value) {
+    this.refDistance = value;
+    return this;
+};
+
+AudioSourcePrototype.setMaxDistance = function(value) {
+    this.maxDistance = value;
+    return this;
+};
+
+AudioSourcePrototype.setRolloffFactor = function(value) {
+    this.rolloffFactor = value;
+    return this;
+};
+
+AudioSourcePrototype.setConeInnerAngle = function(value) {
+    this.coneInnerAngle = value || 0;
+    return this;
+};
+
+AudioSourcePrototype.setConeOuterAngle = function(value) {
+    this.coneOuterAngle = value || 0;
+    return this;
+};
+
+AudioSourcePrototype.setConeOuterGain = function(value) {
+    this.coneOuterGain = value || 0;
+    return this;
+};
+
 AudioSourcePrototype.setLoop = function(value) {
     this.loop = !!value;
     return this;
@@ -211,4 +262,48 @@ AudioSourcePrototype.stop = function() {
     }
 
     return this;
+};
+
+AudioSourcePrototype.toJSON = function(json) {
+
+    json = json || {};
+
+    json.loop = this.loop;
+    json.volume = this.volume;
+    json.dopplerLevel = this.dopplerLevel;
+    json.currentTime = this.currentTime;
+
+    json.panningModel = this.panningModel;
+    json.distanceModel = this.distanceModel;
+
+    json.refDistance = this.refDistance;
+    json.maxDistance = this.maxDistance;
+    json.rolloffFactor = this.rolloffFactor;
+
+    json.coneInnerAngle = this.coneInnerAngle;
+    json.coneOuterAngle = this.coneOuterAngle;
+    json.coneOuterGain = this.coneOuterGain;
+
+    return json;
+};
+
+AudioSourcePrototype.fromJSON = function(json) {
+
+    this.loop = json.loop;
+    this.volume = json.volume;
+    this.dopplerLevel = json.dopplerLevel;
+    this.currentTime = json.currentTime;
+
+    this.panningModel = json.panningModel;
+    this.distanceModel = json.distanceModel;
+
+    this.refDistance = json.refDistance;
+    this.maxDistance = json.maxDistance;
+    this.rolloffFactor = json.rolloffFactor;
+
+    this.coneInnerAngle = json.coneInnerAngle;
+    this.coneOuterAngle = json.coneOuterAngle;
+    this.coneOuterGain = json.coneOuterGain;
+
+    return json;
 };
