@@ -1,10 +1,16 @@
-var environment = require("environment"),
-    eventListener = require("event_listener"),
+var environment = require("@nathanfaucett/environment"),
+    eventListener = require("@nathanfaucett/event_listener"),
     audio = require("../..");
 
 
-var boomClip = new audio.Clip("./content/boom.ogg"),
-    engineClip = new audio.Clip("./content/engine-loop.ogg"),
+var boomClip = audio.Clip.create({
+        name: "clip-boom",
+        src: "./content/boom.ogg"
+    }),
+    engineClip = audio.Clip.create({
+        name: "clip-engine_loop",
+        src: "./content/engine-loop.ogg"
+    }),
     loading = 3;
 
 
@@ -20,16 +26,18 @@ engineClip.load(check);
 eventListener.on(environment.window, "load", check);
 
 
+var boomSource = audio.Source.create({
+        volume: 1,
+        clip: boomClip
+    }),
+    engineSource = audio.Source.create({
+        volume: 0.25,
+        loop: true,
+        clip: engineClip
+    });
+
+
 function start() {
-    var boomSource = audio.Source.create({
-            volume: 1,
-            clip: boomClip
-        }),
-        engineSource = audio.Source.create({
-            volume: 0.25,
-            loop: true,
-            clip: engineClip
-        });
 
     engineSource.play();
 

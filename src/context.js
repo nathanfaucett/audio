@@ -1,6 +1,6 @@
-var isNullOrUndefined = require("is_null_or_undefined"),
-    environment = require("environment"),
-    eventListener = require("event_listener");
+var isNullOrUndefined = require("@nathanfaucett/is_null_or_undefined"),
+    environment = require("@nathanfaucett/environment"),
+    eventListener = require("@nathanfaucett/event_listener");
 
 
 var window = environment.window,

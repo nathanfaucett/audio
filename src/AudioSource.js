@@ -1,8 +1,8 @@
-var isBoolean = require("is_boolean"),
-    isNumber = require("is_number"),
-    EventEmitter = require("event_emitter"),
-    mathf = require("mathf"),
-    now = require("now");
+var isBoolean = require("@nathanfaucett/is_boolean"),
+    isNumber = require("@nathanfaucett/is_number"),
+    EventEmitter = require("@nathanfaucett/event_emitter"),
+    mathf = require("@nathanfaucett/mathf"),
+    now = require("@nathanfaucett/now");
 
 
 var AudioSourcePrototype;
@@ -37,15 +37,15 @@ function AudioSource() {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__startTime = 0.0;
+    this._source = null;
+    this._startTime = 0.0;
 
-    this.__onEnd = function onEnd() {
-        _this.__source = null;
+    this._onEnd = function onEnd() {
+        _this._source = null;
         _this.playing = false;
         _this.paused = false;
         _this.currentTime = 0.0;
-        _this.__startTime = 0.0;
+        _this._startTime = 0.0;
         _this.emit("end");
     };
 }
@@ -83,8 +83,8 @@ AudioSourcePrototype.construct = function(options) {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__startTime = 0.0;
+    this._source = null;
+    this._startTime = 0.0;
 
     return this;
 };
@@ -102,8 +102,8 @@ AudioSourcePrototype.destructor = function() {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__startTime = 0.0;
+    this._source = null;
+    this._startTime = 0.0;
 
     return this;
 };
@@ -124,7 +124,7 @@ AudioSourcePrototype.setDopplerLevel = function(value) {
 };
 
 AudioSourcePrototype.setVolume = function(value) {
-    var source = this.__source;
+    var source = this._source;
 
     this.volume = mathf.clamp01(value || 0);
 
@@ -193,10 +193,10 @@ AudioSourcePrototype.setOrientation = function( /* orientation */ ) {
 };
 
 function AudioSource_reset(_this) {
-    var source = _this.__source = document.createElement("audio");
+    var source = _this._source = document.createElement("audio");
 
     source.src = _this.clip.src;
-    source.onended = _this.__onEnd;
+    source.onended = _this._onEnd;
     source.volume = _this.volume;
     source.loop = _this.loop;
 }
@@ -206,9 +206,9 @@ AudioSourcePrototype.play = function(delay, offset, duration) {
         clip = this.clip,
         currentTime, clipDuration;
 
-    if (clip && clip.raw && (!this.playing || this.paused)) {
+    if (clip && clip.data && (!this.playing || this.paused)) {
         currentTime = this.currentTime;
-        clipDuration = clip.raw.duration;
+        clipDuration = clip.data.duration;
 
         delay = delay || 0.0;
         offset = offset || currentTime;
@@ -218,13 +218,13 @@ AudioSourcePrototype.play = function(delay, offset, duration) {
 
         this.playing = true;
         this.paused = false;
-        this.__startTime = now() * 0.001;
+        this._startTime = now() * 0.001;
         this.currentTime = offset;
 
         if (this.loop) {
-            this.__source.play();
+            this._source.play();
         } else {
-            this.__source.play();
+            this._source.play();
         }
 
         if (delay === 0.0) {
@@ -242,10 +242,10 @@ AudioSourcePrototype.play = function(delay, offset, duration) {
 AudioSourcePrototype.pause = function() {
     var clip = this.clip;
 
-    if (clip && clip.raw && this.playing && !this.paused) {
+    if (clip && clip.data && this.playing && !this.paused) {
         this.paused = true;
-        this.currentTime = (now() - this.__startTime) * 0.001;
-        this.__source.pause();
+        this.currentTime = (now() - this._startTime) * 0.001;
+        this._source.pause();
         this.emit("pause");
     }
 
@@ -255,10 +255,10 @@ AudioSourcePrototype.pause = function() {
 AudioSourcePrototype.stop = function() {
     var clip = this.clip;
 
-    if (this.playing && clip && clip.raw) {
-        this.__source.pause();
+    if (this.playing && clip && clip.data) {
+        this._source.pause();
         this.emit("stop");
-        this.__onEnd();
+        this._onEnd();
     }
 
     return this;

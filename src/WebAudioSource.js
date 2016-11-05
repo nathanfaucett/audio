@@ -1,9 +1,9 @@
-var isBoolean = require("is_boolean"),
-    isNumber = require("is_number"),
-    isString = require("is_string"),
-    EventEmitter = require("event_emitter"),
-    mathf = require("mathf"),
-    now = require("now"),
+var isBoolean = require("@nathanfaucett/is_boolean"),
+    isNumber = require("@nathanfaucett/is_number"),
+    isString = require("@nathanfaucett/is_string"),
+    EventEmitter = require("@nathanfaucett/event_emitter"),
+    mathf = require("@nathanfaucett/mathf"),
+    now = require("@nathanfaucett/now"),
     context = require("./context");
 
 
@@ -39,20 +39,20 @@ function WebAudioSource() {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__gain = null;
-    this.__panner = null;
+    this._source = null;
+    this._gain = null;
+    this._panner = null;
 
-    this.__startTime = 0.0;
+    this._startTime = 0.0;
 
-    this.__onEnd = function onEnd() {
-        _this.__source = null;
-        _this.__gain = null;
-        _this.__panner = null;
+    this._onEnd = function onEnd() {
+        _this._source = null;
+        _this._gain = null;
+        _this._panner = null;
         _this.playing = false;
         _this.paused = false;
         _this.currentTime = 0.0;
-        _this.__startTime = 0.0;
+        _this._startTime = 0.0;
         _this.emit("end");
     };
 }
@@ -117,11 +117,11 @@ WebAudioSourcePrototype.construct = function(options) {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__gain = null;
-    this.__panner = null;
+    this._source = null;
+    this._gain = null;
+    this._panner = null;
 
-    this.__startTime = 0.0;
+    this._startTime = 0.0;
 
     return this;
 };
@@ -150,11 +150,11 @@ WebAudioSourcePrototype.destructor = function() {
     this.playing = false;
     this.paused = false;
 
-    this.__source = null;
-    this.__gain = null;
-    this.__panner = null;
+    this._source = null;
+    this._gain = null;
+    this._panner = null;
 
-    this.__startTime = 0.0;
+    this._startTime = 0.0;
 
     return this;
 };
@@ -165,7 +165,7 @@ WebAudioSourcePrototype.setClip = function(value) {
 };
 
 WebAudioSourcePrototype.setPanningModel = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.panningModel = value;
 
@@ -177,7 +177,7 @@ WebAudioSourcePrototype.setPanningModel = function(value) {
 };
 
 WebAudioSourcePrototype.setDistanceModel = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.distanceModel = value;
 
@@ -189,7 +189,7 @@ WebAudioSourcePrototype.setDistanceModel = function(value) {
 };
 
 WebAudioSourcePrototype.setRefDistance = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.refDistance = value;
 
@@ -201,7 +201,7 @@ WebAudioSourcePrototype.setRefDistance = function(value) {
 };
 
 WebAudioSourcePrototype.setMaxDistance = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.maxDistance = value;
 
@@ -213,7 +213,7 @@ WebAudioSourcePrototype.setMaxDistance = function(value) {
 };
 
 WebAudioSourcePrototype.setRolloffFactor = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.rolloffFactor = value;
 
@@ -225,7 +225,7 @@ WebAudioSourcePrototype.setRolloffFactor = function(value) {
 };
 
 WebAudioSourcePrototype.setConeInnerAngle = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.coneInnerAngle = value || 0;
 
@@ -237,7 +237,7 @@ WebAudioSourcePrototype.setConeInnerAngle = function(value) {
 };
 
 WebAudioSourcePrototype.setConeOuterAngle = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.coneOuterAngle = value || 0;
 
@@ -249,7 +249,7 @@ WebAudioSourcePrototype.setConeOuterAngle = function(value) {
 };
 
 WebAudioSourcePrototype.setConeOuterGain = function(value) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     this.coneOuterGain = value || 0;
 
@@ -271,7 +271,7 @@ WebAudioSourcePrototype.setDopplerLevel = function(value) {
 };
 
 WebAudioSourcePrototype.setVolume = function(value) {
-    var gainNode = this.__gain;
+    var gainNode = this._gain;
 
     this.volume = mathf.clamp01(value || 0);
 
@@ -288,7 +288,7 @@ WebAudioSourcePrototype.setLoop = function(value) {
 };
 
 WebAudioSourcePrototype.setPosition = function(position) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     if (panner) {
         panner.setPosition(position[0], position[1], position[2]);
@@ -298,7 +298,7 @@ WebAudioSourcePrototype.setPosition = function(position) {
 };
 
 WebAudioSourcePrototype.setVelocity = function(velocity) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     if (panner) {
         panner.setVelocity(velocity[0], velocity[1], velocity[2]);
@@ -308,7 +308,7 @@ WebAudioSourcePrototype.setVelocity = function(velocity) {
 };
 
 WebAudioSourcePrototype.setOrientation = function(orientation) {
-    var panner = this.__panner;
+    var panner = this._panner;
 
     if (panner) {
         panner.setOrientation(orientation[0], orientation[1], orientation[2]);
@@ -318,15 +318,15 @@ WebAudioSourcePrototype.setOrientation = function(orientation) {
 };
 
 function WebAudioSource_reset(_this) {
-    var source = _this.__source = context.createBufferSource(),
-        gainNode = _this.__gain = context.createGain(),
+    var source = _this._source = context.createBufferSource(),
+        gainNode = _this._gain = context.createGain(),
         pannerNode;
 
     if (_this.ambient === true) {
         gainNode.connect(context.destination);
         source.connect(gainNode);
     } else {
-        pannerNode = _this.__panner = context.createPanner();
+        pannerNode = _this._panner = context.createPanner();
 
         pannerNode.panningModel = _this.panningModel;
         pannerNode.distanceModel = _this.distanceModel;
@@ -346,8 +346,8 @@ function WebAudioSource_reset(_this) {
         source.connect(pannerNode);
     }
 
-    source.buffer = _this.clip.raw;
-    source.onended = _this.__onEnd;
+    source.buffer = _this.clip.data;
+    source.onended = _this._onEnd;
 
     gainNode.gain.value = _this.volume;
     source.loop = _this.loop;
@@ -358,9 +358,9 @@ WebAudioSourcePrototype.play = function(delay, offset, duration) {
         clip = this.clip,
         currentTime, clipDuration;
 
-    if (clip && clip.raw && (!this.playing || this.paused)) {
+    if (clip && clip.data && (!this.playing || this.paused)) {
         currentTime = this.currentTime;
-        clipDuration = clip.raw.duration;
+        clipDuration = clip.data.duration;
 
         delay = delay || 0.0;
         offset = offset || currentTime;
@@ -370,13 +370,13 @@ WebAudioSourcePrototype.play = function(delay, offset, duration) {
 
         this.playing = true;
         this.paused = false;
-        this.__startTime = now() * 0.001;
+        this._startTime = now() * 0.001;
         this.currentTime = offset;
 
         if (this.loop) {
-            this.__source.start(delay, offset);
+            this._source.start(delay, offset);
         } else {
-            this.__source.start(delay, offset, duration);
+            this._source.start(delay, offset, duration);
         }
 
         if (delay === 0.0) {
@@ -394,10 +394,10 @@ WebAudioSourcePrototype.play = function(delay, offset, duration) {
 WebAudioSourcePrototype.pause = function() {
     var clip = this.clip;
 
-    if (clip && clip.raw && this.playing && !this.paused) {
+    if (clip && clip.data && this.playing && !this.paused) {
         this.paused = true;
-        this.currentTime = (now() - this.__startTime) * 0.001;
-        this.__source.stop();
+        this.currentTime = (now() - this._startTime) * 0.001;
+        this._source.stop();
         this.emit("pause");
     }
 
@@ -407,10 +407,10 @@ WebAudioSourcePrototype.pause = function() {
 WebAudioSourcePrototype.stop = function() {
     var clip = this.clip;
 
-    if (this.playing && clip && clip.raw) {
-        this.__source.stop();
+    if (this.playing && clip && clip.data) {
+        this._source.stop();
         this.emit("stop");
-        this.__onEnd();
+        this._onEnd();
     }
 
     return this;

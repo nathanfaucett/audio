@@ -5,7 +5,6 @@ var audio = exports;
 
 
 audio.context = context;
-audio.load = require("./load");
 audio.Clip = require("./Clip");
 audio.Source = require("./Source");
 
