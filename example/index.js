@@ -76,7 +76,7 @@
         }
     };
 
-    global["oCo5LpKo-MW8h-4FYv-ZR10-2dNQZjp760DMM"] = function(asyncDependencies) {
+    global["bPpIIzw4-jiB9-4Vl1-H6fi-840FnvjgMzcSf"] = function(asyncDependencies) {
         var i = -1,
             il = asyncDependencies.length - 1,
             dependency, index;
@@ -380,7 +380,6 @@ audio.setDopplerFactor = function(dopplerFactor) {
         context.listener.dopplerFactor = dopplerFactor;
     }
 };
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-buffer@3.6.0/index.js-=@*/
@@ -2944,7 +2943,6 @@ if (AudioContext) {
 
 
 module.exports = isNullOrUndefined(context) ? false : context;
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-@nathanfaucett/audio@0.0.1/src/Clip.js-=@*/
@@ -3015,7 +3013,6 @@ if (context) {
         };
     };
 }
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-@nathanfaucett/audio@0.0.1/src/Source.js-=@*/
@@ -3027,7 +3024,6 @@ if (context) {
 } else {
     module.exports = require(102);
 }
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-@nathanfaucett/assets@0.0.1/src/index.js-=@*/
@@ -3318,6 +3314,7 @@ var Class = require(28),
     keys = require(29),
     isArray = require(30),
     isObject = require(9),
+    isString = require(14),
     arrayForEach = require(31),
     objectForEach = require(32);
 
@@ -3396,7 +3393,7 @@ AssetPrototype.load = function(callback) {
         Asset_loadArray(this, src, finalCallback);
     } else if (isObject(src)) {
         Asset_loadObject(this, src, finalCallback);
-    } else {
+    } else if (isString(src)) {
         this.loadSrc(src, function onLoad(error, data) {
             if (error) {
                 finalCallback(error);
@@ -3404,6 +3401,8 @@ AssetPrototype.load = function(callback) {
                 finalCallback(undefined, _this.parse(data));
             }
         });
+    } else {
+        finalCallback(undefined, this.data);
     }
 
     return this;
@@ -7960,7 +7959,6 @@ WebAudioSourcePrototype.fromJSON = function(json) {
 
     return json;
 };
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-@nathanfaucett/audio@0.0.1/src/AudioSource.js-=@*/
@@ -8273,7 +8271,6 @@ AudioSourcePrototype.fromJSON = function(json) {
 
     return json;
 };
-
 },
 function(require, exports, module, undefined, global) {
 /*@=-@nathanfaucett/is_boolean@0.0.1/src/index.js-=@*/

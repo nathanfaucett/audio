@@ -19,12 +19,16 @@
   "readmeFilename": "README.md",
   "devDependencies": {
     "@nathanfaucett/comn": "^0.0.13",
-    "grunt": "^1.0.1",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-jsbeautifier": "^0.2.13"
+    "@nathanfaucett/task": "^0.0.7",
+    "gulp-jsbeautifier": "^2.0.3",
+    "gulp-jshint": "^2.0.1",
+    "jshint": "^2.9.3",
+    "tap-spec": "^4.1.0",
+    "tape": "^4.2.0",
+    "zuul": "^3.11.0"
   },
   "dependencies": {
-    "@nathanfaucett/assets": "git@github.com:nathanfaucett/js-assets.git",
+    "@nathanfaucett/assets": "git://github.com/nathanfaucett/js-assets.git",
     "@nathanfaucett/environment": "^0.0.2",
     "@nathanfaucett/event_emitter": "^0.0.3",
     "@nathanfaucett/event_listener": "^0.0.2",
